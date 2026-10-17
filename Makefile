@@ -1,7 +1,15 @@
 # Compiler
-CC      := cc
-CFLAGS  := -Wall -Wextra -std=c11 -O2
-LDFLAGS :=
+CC      := gcc
+CFLAGS  := -Wall -Wextra -std=c11 -O2 $(shell pkg-config --cflags raylib)
+
+# Link raylib statically (system libraries remain dynamic, as required on macOS)
+RAYLIB_LIBDIR := $(shell pkg-config --variable=libdir raylib)
+LDFLAGS := $(RAYLIB_LIBDIR)/libraylib.a
+ifeq ($(shell uname),Darwin)
+LDFLAGS += -framework Cocoa -framework IOKit -framework CoreVideo -framework OpenGL
+else
+LDFLAGS += -lGL -lm -lpthread -ldl -lrt -lX11
+endif
 
 # Directories
 SRC_DIR   := src
@@ -10,7 +18,7 @@ BIN_DIR   := $(BUILD_DIR)/bin
 OBJ_DIR   := $(BUILD_DIR)/obj
 
 # Executable
-TARGET    := $(BIN_DIR)/pong
+TARGET    := $(BIN_DIR)/Pong
 
 # Files
 SRCS := $(wildcard $(SRC_DIR)/*.c)
